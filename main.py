@@ -1,13 +1,14 @@
 from tradingview_client import TradingViewClient
 from gpt_analyzer import GPTAnalyzer
-from config import SYMBOL, TIMEFRAMES
+from config import SYMBOL, TIMEFRAMES, FEISHU_WEBHOOK_URL
 from tqdm import tqdm
 import time
 from datetime import datetime
 import os
+from feishu_notifier import FeishuNotifier
 
-def save_analysis(analysis_results):
-    """保存分析结果到文件"""
+def save_and_notify(analysis_results):
+    """保存分析结果并发送飞书通知"""
     # 创建 analysis_results 目录（如果不存在）
     if not os.path.exists('analysis_results'):
         os.makedirs('analysis_results')
@@ -27,16 +28,33 @@ def save_analysis(analysis_results):
             text = text.replace('\n\n\n', '\n\n')
         return text
     
+    # 初始化飞书通知器
+    notifier = FeishuNotifier(FEISHU_WEBHOOK_URL)
+    
+    # 保存完整报告到文件
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(f"市场分析报告 - {today}\n")
         f.write(f"分析标的: {SYMBOL}\n")
         f.write("=" * 50 + "\n\n")
         
+        # 对每个时间周期分别处理
         for timeframe, result in analysis_results.items():
+            # 构建该时间周期的分析文本
+            timeframe_text = f"分析时间: {today}\n"
+            timeframe_text += f"分析标的: {SYMBOL}\n"
+            timeframe_text += f"时间周期: {timeframe}\n"
+            timeframe_text += "-" * 30 + "\n"
+            timeframe_text += clean_text(result) if result else "分析失败"
+            
+            # 写入文件
             f.write(f"\n{timeframe} 时间周期分析\n")
             f.write("-" * 30 + "\n")
             f.write(clean_text(result) if result else "分析失败\n")
             f.write("\n" + "=" * 50 + "\n")
+            
+            # 发送单独的飞书通知
+            notifier.send_analysis(SYMBOL, timeframe, timeframe_text)
+            time.sleep(1)  # 添加短暂延迟，避免消息发送过于频繁
     
     print(f"\n分析报告已保存至: {filename}")
 
@@ -83,7 +101,7 @@ def main():
             time.sleep(2)
     
     # 保存分析结果
-    save_analysis(analysis_results)
+    save_and_notify(analysis_results)
 
 if __name__ == "__main__":
     main() 

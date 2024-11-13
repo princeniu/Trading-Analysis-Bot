@@ -1,0 +1,6 @@
+openai
+tradingview-ta
+schedule
+requests
+tqdm
+pandas 

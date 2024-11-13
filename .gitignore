@@ -25,6 +25,8 @@ wheels/
 venv/
 ENV/
 .env
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
@@ -34,4 +36,8 @@ ENV/
 
 # Project specific
 config.py
-analysis_results/ 
+config.example.py
+analysis_results/
+logs/
+temp/
+backup/
