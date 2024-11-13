@@ -27,6 +27,9 @@
    ```bash
    conda create -n trading_analysis python=3.9
    conda activate trading_analysis
+   或
+   python3.9 -m venv venv
+   source venv/bin/activate
    ```
 
 2. 安装依赖：
@@ -46,6 +49,17 @@
    ```bash
    python main.py
    ```
+
+5. 运行程序：
+   - 直接运行（前台运行）：
+     ```bash
+     python main.py
+     ```
+   - 部署为定时任务（后台运行）：
+     ```bash
+     chmod +x deploy.sh
+     ./deploy.sh
+     ```
 
 ## 配置说明
 
